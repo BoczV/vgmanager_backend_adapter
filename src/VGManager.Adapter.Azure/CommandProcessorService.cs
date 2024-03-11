@@ -139,6 +139,10 @@ public class CommandProcessorService(
                     vgManagerAdapterCommandMessage,
                     cancellationToken
                 ),
+                CommandTypes.CreatePullRequest => await gitProviderDto.PullRequestAdapter.CreatePRAsync(
+                    vgManagerAdapterCommandMessage,
+                    cancellationToken
+                    ),
                 _ => throw new InvalidOperationException($"Invalid command type: {commandMessage.CommandType}"),
             };
 

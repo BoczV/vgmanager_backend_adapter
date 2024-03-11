@@ -28,27 +28,33 @@ static partial class Program
             options.AddToLoggingScope = true;
         });
 
-        services.AddCors(options =>
-        {
-            options.AddPolicy(name: specificOrigins,
-                                policy =>
-                                {
-                                    policy.WithOrigins("http://localhost:3000")
-                                    .AllowAnyMethod()
-                                    .AllowAnyHeader();
-                                });
-        });
+        services.AddCors(
+            options =>
+            {
+                options.AddPolicy(
+                    name: specificOrigins,
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:3000")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                    }
+                );
+            }
+        );
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "VGManager.Adapter.Api", Version = "v1" });
-            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            c.IncludeXmlComments(xmlPath);
-            c.UseOneOfForPolymorphism();
-        });
+        services.AddSwaggerGen(
+            c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "VGManager.Adapter.Api", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+                c.UseOneOfForPolymorphism();
+            }
+        );
 
         services.AddAuthorization();
         services.AddControllers();
@@ -70,8 +76,17 @@ static partial class Program
         services.AddSingleton<StartupHealthCheck>();
         services.AddScoped<ProviderDto>();
         services.AddScoped<GitProviderDto>();
-        services.SetupKafkaConsumer<VGManagerAdapterCommand>(configuration, Constants.SettingKeys.VGManagerAdapterCommandConsumer, false);
-        services.SetupKafkaProducer<VGManagerAdapterCommandResponse>(configuration, Constants.SettingKeys.VGManagerAdapterCommandResponseProducer);
+
+        services.SetupKafkaConsumer<VGManagerAdapterCommand>(
+            configuration, 
+            Constants.SettingKeys.VGManagerAdapterCommandConsumer, 
+            false
+            );
+
+        services.SetupKafkaProducer<VGManagerAdapterCommandResponse>(
+            configuration, 
+            Constants.SettingKeys.VGManagerAdapterCommandResponseProducer
+            );
 
         services.AddScoped<ICommandProcessorService, CommandProcessorService>();
 
@@ -88,6 +103,7 @@ static partial class Program
         services.AddScoped<IReleasePipelineAdapter, ReleasePipelineAdapter>();
         services.AddScoped<IBuildPipelineAdapter, BuildPipelineAdapter>();
         services.AddScoped<ISprintAdapter, SprintAdapter>();
+        services.AddScoped<IPullRequestAdapter, PullRequestAdapter>();
         services.AddHostedService<CommandProcessorBackgroundService>();
     }
 }
