@@ -10,7 +10,7 @@ using VGManager.Adapter.Models.StatusEnums;
 
 namespace VGManager.Adapter.Azure.Services;
 
-public class PullRequestAdapter(IHttpClientProvider clientProvider, ILogger<ReleasePipelineAdapter> logger) :
+public class PullRequestAdapter(IHttpClientProvider clientProvider, ILogger<PullRequestAdapter> logger) :
     IPullRequestAdapter
 {
     public async Task<BaseResponse<AdapterResponseModel<bool>>> CreatePRAsync(
@@ -34,9 +34,10 @@ public class PullRequestAdapter(IHttpClientProvider clientProvider, ILogger<Rele
                 TargetRefName = payload.TargetRefName,
                 Title = payload.Title,
                 Description = payload.Description,
-                Status = PullRequestStatus.Active
+                Status = PullRequestStatus.Completed
             };
 
+            clientProvider.Setup(payload.Organization, payload.PAT);
             using var client = await clientProvider.GetClientAsync<GitHttpClient>(cancellationToken: cancellationToken);
 
             var pr = await client.CreatePullRequestAsync(
